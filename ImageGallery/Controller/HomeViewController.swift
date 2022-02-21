@@ -12,15 +12,6 @@ class HomeViewController: UIViewController {
     //MARK: -Properties
     private(set) var imagePool: [Image] = [
         Image(aspectRatio: 3/4, backgroudColor: .red),
-        Image(aspectRatio: 3/5, backgroudColor: .black),
-        Image(aspectRatio: 9/16, backgroudColor: .gray),
-        Image(aspectRatio: 1/1, backgroudColor: .green),
-        Image(aspectRatio: 1/3, backgroudColor: .blue),
-        Image(aspectRatio: 3/4, backgroudColor: .yellow),
-        Image(aspectRatio: 3/5, backgroudColor: .purple),
-        Image(aspectRatio: 9/16, backgroudColor: .systemPink),
-        Image(aspectRatio: 1/1, backgroudColor: .cyan),
-        Image(aspectRatio: 1/3, backgroudColor: .brown),
     ]
     
     private var fontSize: CGFloat {
@@ -50,6 +41,7 @@ class HomeViewController: UIViewController {
             self.galleryCollectionView.dragDelegate = self
             self.galleryCollectionView.refreshControl = self.refreshControl
             self.galleryCollectionView.addSubview(self.refreshControl)
+            
         }
     }
     
@@ -81,6 +73,17 @@ class HomeViewController: UIViewController {
         self.refreshControl.attributedTitle = attributedText
         self.refreshControl.addAction(reloadAction, for: .valueChanged)
     }
+    
+    
+    private func fetchImage(from url: URL?, completion: @escaping (_ image: UIImage) -> Void) -> Void {
+        guard let url = url else { return }
+        
+        URLSession(configuration: .default).dataTask(with: url) { data, _, error in
+            guard let data = data, let source = UIImage(data: data), error == nil else { return }
+            completion(source)
+        }.resume()
+    }
+    
 }
 
 
@@ -105,18 +108,24 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDelegate
         let cellImage = self.imagePool[indexPath.item]
         
         cell.backgroundView = UIView()
-        cell.backgroundColor = cellImage.backgroudColor
+        cell.backgroundColor = .darkGray
         cell.clipsToBounds = true
         cell.layer.cornerRadius = CollectionViewConsts.cornerRadius
         
-        guard let imageURL = cellImage.url else { return cell }
+        guard let imageURL = cellImage.url else {
+            let iv = UIImageView(image: UIImage(systemName: "photo.on.rectangle.angled"))
+            iv.contentMode = .scaleAspectFit
+            cell.backgroundView = iv
+            return cell
+        }
         
-        URLSession(configuration: .default).dataTask(with: imageURL) { data, _, error in
-            guard let data = data, let source = UIImage(data: data), error == nil else { return }
+        self.fetchImage(from: imageURL) { image in
             DispatchQueue.main.async {
-                cell.backgroundView = UIImageView(image: source)
+                let iv = UIImageView(image: image)
+                iv.contentMode = .scaleAspectFit
+                cell.backgroundView = iv
             }
-        }.resume()
+        }
         
         return cell
     }
@@ -136,12 +145,15 @@ extension HomeViewController: UICollectionViewDataSource{
 
 
 //MARK: -Drag, drop and Interaction Delegates
-extension HomeViewController: UICollectionViewDropDelegate, UICollectionViewDragDelegate, UIDragInteractionDelegate {
-  
+extension HomeViewController: UICollectionViewDropDelegate, UICollectionViewDragDelegate {
     
     //MARK: -DROP Interaction Handling....
     func collectionView(_ collectionView: UICollectionView, canHandle session: UIDropSession) -> Bool {
-        session.canLoadObjects(ofClass: NSURL.self) && session.canLoadObjects(ofClass: UIImage.self)
+        if collectionView.hasActiveDrag {
+            return session.canLoadObjects(ofClass: NSURL.self)
+        } else {
+            return session.canLoadObjects(ofClass: NSURL.self) && session.canLoadObjects(ofClass: UIImage.self)
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, dropSessionDidUpdate session: UIDropSession, withDestinationIndexPath destinationIndexPath: IndexPath?) -> UICollectionViewDropProposal {
@@ -156,6 +168,18 @@ extension HomeViewController: UICollectionViewDropDelegate, UICollectionViewDrag
     func collectionView(_ collectionView: UICollectionView, performDropWith coordinator: UICollectionViewDropCoordinator) {
         for dropItem in coordinator.items {
             switch dropItem.sourceIndexPath {
+            case .some(let sourceIndexPath):
+                let destinationIndexPath = coordinator.destinationIndexPath ?? IndexPath(item: 0, section: 0)
+                collectionView.performBatchUpdates {
+                    // perform batch updates is used when we need to make multiple changes to the collection view one by one...
+                    let sourceImage = self.imagePool.remove(at: sourceIndexPath.item)
+                    self.imagePool.insert(sourceImage, at: destinationIndexPath.item)
+                    collectionView.deleteItems(at: [sourceIndexPath])
+                    collectionView.insertItems(at: [destinationIndexPath])
+                }
+                
+                coordinator.drop(dropItem.dragItem, toItemAt: destinationIndexPath)
+                break
             case .none:
                 let lastIndexPath = IndexPath(item: self.imagePool.count, section: 0)
                 let dropPlaceholder = UICollectionViewDropPlaceholder(insertionIndexPath: lastIndexPath, reuseIdentifier: Consts.placholderId)
@@ -183,8 +207,6 @@ extension HomeViewController: UICollectionViewDropDelegate, UICollectionViewDrag
                 }
                 
                 break
-                
-            default: break
             }
         }
     }
@@ -195,14 +217,26 @@ extension HomeViewController: UICollectionViewDropDelegate, UICollectionViewDrag
     //MARK: -Drag Interaction Handling....
    
     func collectionView(_ collectionView: UICollectionView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
-        self.getDragItems(for: indexPath)
+        session.localContext = collectionView
+        return self.getDragItems(for: indexPath)
     }
     
 
+    func collectionView(_ collectionView: UICollectionView, itemsForAddingTo session: UIDragSession, at indexPath: IndexPath, point: CGPoint) -> [UIDragItem] {
+        self.getDragItems(for: indexPath)
+    }
     
     private func getDragItems(for indexPath: IndexPath) -> [UIDragItem] {
+        guard let url = self.imagePool[indexPath.item].url as NSURL?
+        else { return [] }
         
+        let dragItem = UIDragItem(itemProvider: NSItemProvider(object: url))
+        dragItem.localObject = url
+        
+        return [dragItem]
     }
+    
+    
 
 }
 
@@ -229,7 +263,9 @@ extension HomeViewController {
         let url: URL?
         let image: UIImage
         
-        init (aspectRatio: CGFloat, backgroudColor: UIColor, url: URL? = nil, image: UIImage = UIImage()) {
+        init (aspectRatio: CGFloat, backgroudColor: UIColor,
+              url: URL? = URL(string: "https://www.google.com/images/branding/googlelogo/2x/googlelogo_light_color_272x92dp.png"),
+              image: UIImage = UIImage()) {
             self.aspectRatio = aspectRatio
             self.backgroudColor = backgroudColor
             self.url = url
