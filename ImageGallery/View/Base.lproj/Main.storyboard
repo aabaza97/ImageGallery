@@ -71,7 +71,11 @@
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
-                <pinchGestureRecognizer id="cri-Ot-knz"/>
+                <pinchGestureRecognizer id="cri-Ot-knz">
+                    <connections>
+                        <action selector="didPinchCollectionView:" destination="BYZ-38-t0r" id="dPQ-cu-jB0"/>
+                    </connections>
+                </pinchGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="744.140625" y="97.950219619326489"/>
         </scene>

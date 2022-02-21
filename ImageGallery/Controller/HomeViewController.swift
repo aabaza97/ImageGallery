@@ -54,6 +54,20 @@ class HomeViewController: UIViewController {
     }
 
     
+    
+    //MARK: - Actions
+    @IBAction func didPinchCollectionView(_ sender: UIPinchGestureRecognizer) {
+        guard let view = sender.view, view.width >= self.view.width else { return }
+        
+        if sender.state == .began || sender.state == .changed {
+            view.transform = CGAffineTransform(scaleX: sender.scale / 2, y: sender.scale / 2)
+            view.invalidateIntrinsicContentSize()
+        }
+    }
+    
+    
+    
+    //MARK: -Functions
     private func configure() -> Void {
         
         //RefreshControl setup...
