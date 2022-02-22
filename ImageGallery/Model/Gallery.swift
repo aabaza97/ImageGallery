@@ -8,10 +8,17 @@
 import UIKit
 
 ///The wrapper of all images of gallery.
-struct Gallery: Codable {
+struct Gallery: Codable, Equatable {
+    
+    var id: String = UUID().uuidString
+    
     var images: [Image]
     
     var title: String
+    
+    static func == (lhs: Gallery, rhs: Gallery) -> Bool {
+        lhs.id == rhs.id
+    }
 }
 
 ///The wrapper of an image data inside a gallery.

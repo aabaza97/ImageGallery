@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="19529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="byi-c6-ByJ">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="19529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="d8D-rE-oUi">
     <device id="ipad12_9" orientation="portrait" layout="fullscreen" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19519"/>
@@ -65,7 +65,14 @@
                             <outletCollection property="gestureRecognizers" destination="cri-Ot-knz" appends="YES" id="C3K-rb-BQa"/>
                         </connections>
                     </view>
-                    <navigationItem key="navigationItem" title="Gallery" largeTitleDisplayMode="always" id="TUt-ef-ofi"/>
+                    <navigationItem key="navigationItem" title="Gallery Title" largeTitleDisplayMode="always" id="TUt-ef-ofi">
+                        <barButtonItem key="backBarButtonItem" title="Liberary" id="Mii-Ke-0uW"/>
+                        <barButtonItem key="rightBarButtonItem" systemItem="save" id="yEm-Ix-RbK">
+                            <connections>
+                                <action selector="didTapSaveButton:" destination="BYZ-38-t0r" id="5J6-BE-pm6"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="galleryCollectionView" destination="5Mi-gr-7Tm" id="AAm-Hj-EpH"/>
                     </connections>
@@ -77,7 +84,20 @@
                     </connections>
                 </pinchGestureRecognizer>
             </objects>
-            <point key="canvasLocation" x="744.140625" y="97.950219619326489"/>
+            <point key="canvasLocation" x="1067" y="98"/>
+        </scene>
+        <!--Split View Controller-->
+        <scene sceneID="URm-C2-iri">
+            <objects>
+                <splitViewController interfaceStyle="dark" allowDoubleColumnStyle="YES" id="d8D-rE-oUi" sceneMemberID="viewController">
+                    <connections>
+                        <segue destination="byi-c6-ByJ" kind="relationship" relationship="masterViewController" id="wCv-BT-ZoZ"/>
+                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="detailViewController" id="0p8-SD-ZgL"/>
+                    </connections>
+                </splitViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="8IV-Vq-Xeo" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="461" y="-788"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="WX0-7F-7CS">
@@ -85,20 +105,61 @@
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="byi-c6-ByJ" sceneMemberID="viewController">
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" barStyle="black" largeTitles="YES" id="Rbq-eW-4C8">
-                        <rect key="frame" x="0.0" y="20" width="1024" height="102"/>
+                        <rect key="frame" x="0.0" y="20" width="420" height="102"/>
                         <autoresizingMask key="autoresizingMask"/>
+                        <textAttributes key="titleTextAttributes">
+                            <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        </textAttributes>
                         <textAttributes key="largeTitleTextAttributes">
                             <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         </textAttributes>
                     </navigationBar>
                     <nil name="viewControllers"/>
                     <connections>
-                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="1en-wB-gq5"/>
+                        <segue destination="MvA-n5-KO4" kind="relationship" relationship="rootViewController" id="Bms-w4-n8i"/>
                     </connections>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="zJf-JC-nou" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="19.921875" y="97.950219619326489"/>
+        </scene>
+        <!--My Galleries-->
+        <scene sceneID="emo-de-rwq">
+            <objects>
+                <tableViewController id="MvA-n5-KO4" customClass="LibraryTableViewController" customModule="ImageGallery" customModuleProvider="target" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="insetGrouped" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" estimatedSectionHeaderHeight="-1" sectionFooterHeight="18" estimatedSectionFooterHeight="-1" id="mhv-DA-EWF">
+                        <rect key="frame" x="0.0" y="0.0" width="420" height="1366"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="sectionIndexColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <prototypes>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="galleryCell" id="1FO-RP-1dm">
+                                <rect key="frame" x="116" y="32" width="288" height="51.5"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="1FO-RP-1dm" id="JbD-sU-51I">
+                                    <rect key="frame" x="0.0" y="0.0" width="288" height="51.5"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </tableViewCellContentView>
+                                <color key="backgroundColor" red="0.14340673340000001" green="0.14340673340000001" blue="0.14340673340000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="MvA-n5-KO4" id="hdo-X2-RhI"/>
+                            <outlet property="delegate" destination="MvA-n5-KO4" id="S3r-FT-ipE"/>
+                        </connections>
+                    </tableView>
+                    <navigationItem key="navigationItem" title="My Galleries" largeTitleDisplayMode="always" id="9SM-t9-JEe">
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="pah-nU-XHb">
+                            <connections>
+                                <action selector="didTapNewGallery:" destination="MvA-n5-KO4" id="eGD-PD-2gX"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Ear-xN-Gpq" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="20" y="844"/>
         </scene>
     </scenes>
 </document>

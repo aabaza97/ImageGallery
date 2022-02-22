@@ -13,13 +13,14 @@ class HomeViewController: UIViewController {
     
     var imageGallery: Gallery!{
         didSet {
-//            print("\nGallery:\n")
-//            self.imageGallery.images.forEach { image in
-//                print("URL: \(String(describing: image.url)), \nwith aspect ratio: \(image.aspectRatio)\n-----------------")
-//            }
-//            print("\n================================")
+            self.galleryCollectionView.reloadData()
+            print("reloaded....")
         }
     }
+    
+    var isPresentingFromDeleted: Bool = false
+    
+    var isNewGallery: Bool = false
     
     private var imagePool: [Image]! {
         self.imageGallery.images
@@ -74,6 +75,17 @@ class HomeViewController: UIViewController {
         }
     }
     
+    @IBAction func didTapSaveButton(_ sender: UIBarButtonItem) {
+        if !self.isNewGallery {
+            guard let indexOfGallery = (Library.shared.galleries.firstIndex { gallery in
+                gallery == self.imageGallery
+            }) else { return }
+            
+            Library.shared.updateGallery(from: self.imageGallery, at: indexOfGallery)
+        } else {
+            Library.shared.saveGallery(self.imageGallery)
+        }
+    }
     
     
     //MARK: -Functions
