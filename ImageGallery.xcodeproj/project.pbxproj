@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AC4D085327C4E0AD0043CA36 /* Gallery.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC4D085227C4E0AD0043CA36 /* Gallery.swift */; };
 		AC64308C27BE78A2009E6095 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC64308B27BE78A2009E6095 /* AppDelegate.swift */; };
 		AC64308E27BE78A2009E6095 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC64308D27BE78A2009E6095 /* SceneDelegate.swift */; };
 		AC64309027BE78A2009E6095 /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC64308F27BE78A2009E6095 /* HomeViewController.swift */; };
@@ -19,6 +20,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		AC4D085227C4E0AD0043CA36 /* Gallery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gallery.swift; sourceTree = "<group>"; };
 		AC64308827BE78A2009E6095 /* ImageGallery.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ImageGallery.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AC64308B27BE78A2009E6095 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		AC64308D27BE78A2009E6095 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -103,6 +105,7 @@
 		AC6430A227BE79C0009E6095 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				AC4D085227C4E0AD0043CA36 /* Gallery.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -197,6 +200,7 @@
 			files = (
 				AC6430A527BE9DF6009E6095 /* PinterestLayout.swift in Sources */,
 				AC64309027BE78A2009E6095 /* HomeViewController.swift in Sources */,
+				AC4D085327C4E0AD0043CA36 /* Gallery.swift in Sources */,
 				AC64308C27BE78A2009E6095 /* AppDelegate.swift in Sources */,
 				ACBF32B227C43638000D8CE6 /* UIViewUtils.swift in Sources */,
 				AC6430A827BEB95A009E6095 /* Utilities.swift in Sources */,

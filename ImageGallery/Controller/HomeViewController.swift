@@ -10,19 +10,28 @@ import UIKit
 class HomeViewController: UIViewController {
     
     //MARK: -Properties
-    private(set) var imagePool: [Image] = [
-        Image(aspectRatio: 3/4, backgroudColor: .red),
-    ]
+    
+    var imageGallery: Gallery!{
+        didSet {
+//            print("\nGallery:\n")
+//            self.imageGallery.images.forEach { image in
+//                print("URL: \(String(describing: image.url)), \nwith aspect ratio: \(image.aspectRatio)\n-----------------")
+//            }
+//            print("\n================================")
+        }
+    }
+    
+    private var imagePool: [Image]! {
+        self.imageGallery.images
+    }
     
     private var fontSize: CGFloat {
         self.view.bounds.width * SizeRatios.fontSizeToBoundsWidth
     }
-
+    
     private var font: UIFont {
         UIFontMetrics(forTextStyle: .body).scaledFont(for: .preferredFont(forTextStyle: .body).withSize(self.fontSize))
     }
-    
-    private var imageFetcher: ImageFetcher!
     
     
     //MARK: -UI Elements
@@ -52,7 +61,7 @@ class HomeViewController: UIViewController {
         super.viewDidLoad()
         self.configure()
     }
-
+    
     
     
     //MARK: - Actions
@@ -78,7 +87,6 @@ class HomeViewController: UIViewController {
         
         let reloadAction = UIAction { _ in
             DispatchQueue.main.async {
-                self.imagePool.shuffle()
                 self.galleryCollectionView.reloadData()
                 self.refreshControl.endRefreshing()
             }
@@ -86,6 +94,10 @@ class HomeViewController: UIViewController {
         
         self.refreshControl.attributedTitle = attributedText
         self.refreshControl.addAction(reloadAction, for: .valueChanged)
+        
+        
+        //Gallery Setup
+        self.imageGallery = Gallery(images: [Image()], title: "Untitled 1")
     }
     
     
@@ -110,10 +122,10 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDelegate
         let collectionViewWidth = self.galleryCollectionView.bounds.width
         let insets = collectionView.contentInset
         let spaceBetweenItemsInRow = CollectionViewConsts.minimumInteritemSpacing
-
+        
         let itemWidth: CGFloat = collectionViewWidth - insets.left - insets.right - spaceBetweenItemsInRow
         let itemHeight: CGFloat = itemWidth * aspectRatio
-
+        
         return CGSize(width: itemWidth, height: itemHeight)
     }
     
@@ -186,8 +198,8 @@ extension HomeViewController: UICollectionViewDropDelegate, UICollectionViewDrag
                 let destinationIndexPath = coordinator.destinationIndexPath ?? IndexPath(item: 0, section: 0)
                 collectionView.performBatchUpdates {
                     // perform batch updates is used when we need to make multiple changes to the collection view one by one...
-                    let sourceImage = self.imagePool.remove(at: sourceIndexPath.item)
-                    self.imagePool.insert(sourceImage, at: destinationIndexPath.item)
+                    let sourceImage = self.imageGallery.images.remove(at: sourceIndexPath.item)
+                    self.imageGallery.images.insert(sourceImage, at: destinationIndexPath.item)
                     collectionView.deleteItems(at: [sourceIndexPath])
                     collectionView.insertItems(at: [destinationIndexPath])
                 }
@@ -198,22 +210,22 @@ extension HomeViewController: UICollectionViewDropDelegate, UICollectionViewDrag
                 let lastIndexPath = IndexPath(item: self.imagePool.count, section: 0)
                 let dropPlaceholder = UICollectionViewDropPlaceholder(insertionIndexPath: lastIndexPath, reuseIdentifier: Consts.placholderId)
                 let placeholderManager = coordinator.drop(dropItem.dragItem, to: dropPlaceholder)
-
+                
                 
                 dropItem.dragItem.itemProvider.loadObject(ofClass: NSURL.self) { provider, error in
                     guard let url = provider as? URL else { return }
                     
                     URLSession(configuration: .default).dataTask(with: url) { data, _, error in
-                        guard let data = data, let source = UIImage(data: data), error == nil else {
+                        guard let imageData = data, error == nil else {
                             placeholderManager.deletePlaceholder()
                             return
                         }
-                       
-                        let image = Image(aspectRatio: source.aspectRatio, backgroudColor: .red, url: url)
+                        
+                        let image = Image(url: url, image: imageData)
                         
                         DispatchQueue.main.async {
                             placeholderManager.commitInsertion { _ in
-                                self.imagePool.append(image)
+                                self.imageGallery.images.append(image)
                             }
                             collectionView.scrollToItem(at: lastIndexPath, at: .top, animated: true)
                         }
@@ -229,13 +241,13 @@ extension HomeViewController: UICollectionViewDropDelegate, UICollectionViewDrag
     
     
     //MARK: -Drag Interaction Handling....
-   
+    
     func collectionView(_ collectionView: UICollectionView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
         session.localContext = collectionView
         return self.getDragItems(for: indexPath)
     }
     
-
+    
     func collectionView(_ collectionView: UICollectionView, itemsForAddingTo session: UIDragSession, at indexPath: IndexPath, point: CGPoint) -> [UIDragItem] {
         self.getDragItems(for: indexPath)
     }
@@ -251,7 +263,7 @@ extension HomeViewController: UICollectionViewDropDelegate, UICollectionViewDrag
     }
     
     
-
+    
 }
 
 
@@ -271,21 +283,21 @@ extension HomeViewController {
         static let cornerRadius: CGFloat = 12.0
     }
     
-    struct Image {
-        let aspectRatio: CGFloat
-        let backgroudColor: UIColor
-        let url: URL?
-        let image: UIImage
-        
-        init (aspectRatio: CGFloat, backgroudColor: UIColor,
-              url: URL? = URL(string: "https://www.google.com/images/branding/googlelogo/2x/googlelogo_light_color_272x92dp.png"),
-              image: UIImage = UIImage()) {
-            self.aspectRatio = aspectRatio
-            self.backgroudColor = backgroudColor
-            self.url = url
-            self.image = image
-        }
-    }
+    //    struct Image {
+    //        let aspectRatio: CGFloat
+    //        let backgroudColor: UIColor
+    //        let url: URL?
+    //        let image: UIImage
+    //
+    //        init (aspectRatio: CGFloat, backgroudColor: UIColor,
+    //              url: URL? = URL(string: "https://www.google.com/images/branding/googlelogo/2x/googlelogo_light_color_272x92dp.png"),
+    //              image: UIImage = UIImage()) {
+    //            self.aspectRatio = aspectRatio
+    //            self.backgroudColor = backgroudColor
+    //            self.url = url
+    //            self.image = image
+    //        }
+    //    }
     
     private struct SizeRatios {
         static let fontSizeToBoundsWidth: CGFloat = 0.0385
